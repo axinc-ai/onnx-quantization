@@ -2,8 +2,10 @@ import os
 
 import numpy as np
 import math
-import ailia
-
+import sys
+sys.path.append('./util')
+from detector_utils import DetectorObject
+ 
 import cv2
 
 def preproc(img, input_size, swap=(2, 0, 1)):
@@ -154,7 +156,7 @@ def predictions_to_object(predictions,raw_img,ratio,nms_thr,score_thr):
         for i, box in enumerate(final_boxes):
             x1, y1, x2, y2 = box
             c = int(final_cls_inds[i])
-            r = ailia.DetectorObject(
+            r = DetectorObject(
                 category=c,
                 prob=final_scores[i],
                 x=x1 / img_size_w,

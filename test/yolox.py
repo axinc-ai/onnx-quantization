@@ -3,7 +3,6 @@ import os
 import sys
 import time
 
-import ailia
 import cv2
 import numpy as np
 import onnxruntime
@@ -68,7 +67,7 @@ NMS_THR = 0.45
 parser = get_base_parser('yolox model', IMAGE_PATH, SAVE_IMAGE_PATH)
 parser.add_argument(
     '-m', '--model_name',
-    default='yolox_s',
+    default='yolox_tiny',
     help='[yolox_nano, yolox_tiny, yolox_s, yolox_m, yolox_l,'
          'yolox_darknet, yolox_x]'
 )
@@ -86,21 +85,6 @@ parser.add_argument(
     '-iou', '--iou',
     default=NMS_THR, type=float,
     help='The detection iou for yolo. (default: '+str(NMS_THR)+')'
-)
-parser.add_argument(
-    '-dt', '--detector',
-    action='store_true',
-    help='Use detector API (require ailia SDK 1.2.9).'
-)
-parser.add_argument(
-    '-dw', '--detection_width',
-    default=-1, type=int,
-    help='The detection width and height for yolo. (default: auto)'
-)
-parser.add_argument(
-    '-dh', '--detection_height',
-    default=-1, type=int,
-    help='The detection height and height for yolo. (default: auto)'
 )
 args = update_parser(parser)
 
@@ -120,18 +104,13 @@ def recognize_from_image(detector):
         # prepare input data
         logger.debug(f'input image: {image_path}')
         raw_img = imread(image_path, cv2.IMREAD_COLOR)
-        if not args.detector:
-            img, ratio = preprocess(raw_img, (HEIGHT, WIDTH))
+        img, ratio = preprocess(raw_img, (HEIGHT, WIDTH))
         logger.debug(f'input image shape: {raw_img.shape}')
 
         def compute():
-            if args.detector:
-                detector.compute(raw_img, args.threshold, args.iou)
-                return None
-            else:
-                input_name = detector.get_inputs()[0].name
-                print(input_name)
-                return detector.run([], {input_name:img[None, :, :, :]})
+            input_name = detector.get_inputs()[0].name
+            print(input_name)
+            return detector.run([], {input_name:img[None, :, :, :]})
 
         # inference
         logger.info('Start inference...')
@@ -149,14 +128,10 @@ def recognize_from_image(detector):
         else:
             output = compute()
 
-        if args.detector:
-            res_img = plot_results(detector, raw_img, COCO_CATEGORY)
-            detect_object = detector
-        else:
-            predictions = postprocess(output[0], (HEIGHT, WIDTH))[0]
-            detect_object = predictions_to_object(predictions, raw_img, ratio, args.iou, args.threshold)
-            detect_object = reverse_letterbox(detect_object, raw_img, (raw_img.shape[0], raw_img.shape[1]))
-            res_img = plot_results(detect_object, raw_img, COCO_CATEGORY)
+        predictions = postprocess(output[0], (HEIGHT, WIDTH))[0]
+        detect_object = predictions_to_object(predictions, raw_img, ratio, args.iou, args.threshold)
+        detect_object = reverse_letterbox(detect_object, raw_img, (raw_img.shape[0], raw_img.shape[1]))
+        res_img = plot_results(detect_object, raw_img, COCO_CATEGORY)
 
         # plot result
         savepath = get_savepath(args.savepath, image_path)
@@ -182,11 +157,6 @@ def recognize_from_video(detector):
     else:
         writer = None
 
-    if args.write_prediction:
-        frame_count = 0
-        frame_digit = int(math.log10(capture.get(cv2.CAP_PROP_FRAME_COUNT)) + 1)
-        video_name = os.path.splitext(os.path.basename(args.video))[0]
-
     frame_shown = False
     while (True):
         ret, frame = capture.read()
@@ -196,30 +166,18 @@ def recognize_from_video(detector):
             break
 
         raw_img = frame
-        if args.detector:
-            detector.compute(raw_img, args.threshold, args.iou)
-            res_img = plot_results(detector, raw_img, COCO_CATEGORY)
-            detect_object = detector
-        else:
-            img, ratio = preprocess(raw_img, (HEIGHT, WIDTH))
-            output = detector.run(img[None, :, :, :])
-            predictions = postprocess(output[0], (HEIGHT, WIDTH))[0]
-            detect_object = predictions_to_object(predictions, raw_img, ratio, args.iou, args.threshold)
-            detect_object = reverse_letterbox(detect_object, raw_img, (raw_img.shape[0], raw_img.shape[1]))
-            res_img = plot_results(detect_object, raw_img, COCO_CATEGORY)
+        img, ratio = preprocess(raw_img, (HEIGHT, WIDTH))
+        output = detector.run(img[None, :, :, :])
+        predictions = postprocess(output[0], (HEIGHT, WIDTH))[0]
+        detect_object = predictions_to_object(predictions, raw_img, ratio, args.iou, args.threshold)
+        detect_object = reverse_letterbox(detect_object, raw_img, (raw_img.shape[0], raw_img.shape[1]))
+        res_img = plot_results(detect_object, raw_img, COCO_CATEGORY)
         cv2.imshow('frame', res_img)
         frame_shown = True
 
         # save results
         if writer is not None:
             writer.write(res_img)
-
-        # write prediction
-        if args.write_prediction:
-            savepath = get_savepath(args.savepath, video_name, post_fix = '_%s' % (str(frame_count).zfill(frame_digit) + '_res'), ext='.png')
-            pred_file = '%s.txt' % savepath.rsplit('.', 1)[0]
-            write_predictions(pred_file, detect_object, frame, COCO_CATEGORY)
-            frame_count += 1
 
     capture.release()
     cv2.destroyAllWindows()
@@ -228,41 +186,14 @@ def recognize_from_video(detector):
     logger.info('Script finished successfully.')
 
 def main():
-    # model files check and download
-    check_and_download_models(WEIGHT_PATH, MODEL_PATH, REMOTE_PATH)
-
-    env_id = args.env_id
-    if args.detector:
-        detector = ailia.Detector(
-                MODEL_PATH,
-                WEIGHT_PATH,
-                len(COCO_CATEGORY),
-                format=ailia.NETWORK_IMAGE_FORMAT_BGR,
-                channel=ailia.NETWORK_IMAGE_CHANNEL_FIRST,
-                range=ailia.NETWORK_IMAGE_RANGE_U_INT8,
-                algorithm=ailia.DETECTOR_ALGORITHM_YOLOX,
-                env_id=env_id)
-        if args.detection_width!=-1 or args.detection_height!=-1:
-            detector.set_input_shape(args.detection_width,args.detection_height)
-    else:
-        #detector = ailia.Net(MODEL_PATH, WEIGHT_PATH, env_id=env_id)
-        detector = onnxruntime.InferenceSession("yolox_tiny_quantized.onnx")
-        if args.detection_width!=-1 or args.detection_height!=-1:
-            global WIDTH,HEIGHT
-            WIDTH=args.detection_width
-            HEIGHT=args.detection_height
-            detector.set_input_shape((1,3,HEIGHT,WIDTH))
+    detector = onnxruntime.InferenceSession("../models/yolox_tiny_quantized.onnx")
 
     if args.video is not None:
         # video mode
         recognize_from_video(detector)
     else:
         # image mode
-        if args.profile:
-            detector.set_profile_mode(True)
         recognize_from_image(detector)
-        if args.profile:
-            print(detector.get_summary())
 
 
 if __name__ == '__main__':

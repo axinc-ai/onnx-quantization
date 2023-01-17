@@ -4,7 +4,7 @@ import onnxruntime
 import time
 from onnxruntime.quantization import QuantFormat, QuantType, quantize_static
 
-import resnet50_data_reader
+import data_reader
 
 
 def benchmark(model_path):
@@ -49,7 +49,7 @@ def main():
     input_model_path = args.input_model
     output_model_path = args.output_model
     calibration_dataset_path = args.calibrate_dataset
-    dr = resnet50_data_reader.ResNet50DataReader(
+    dr = data_reader.DataReader(
         calibration_dataset_path, input_model_path
     )
 

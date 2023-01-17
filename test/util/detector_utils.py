@@ -2,9 +2,20 @@ import os
 import sys
 from logging import getLogger
 
-import ailia
 import cv2
 import numpy as np
+
+import ctypes
+
+class DetectorObject(ctypes.Structure):
+    _fields_ = [
+        ("category", ctypes.c_uint),
+        ("prob", ctypes.c_float),
+        ("x", ctypes.c_float),
+        ("y", ctypes.c_float),
+        ("w", ctypes.c_float),
+        ("h", ctypes.c_float)]
+    VERSION = ctypes.c_uint(1)
 
 logger = getLogger(__name__)
 
@@ -83,7 +94,7 @@ def reverse_letterbox(detections, img, det_shape):
     new_detections = []
     for detection in detections:
         logger.debug(detection)
-        r = ailia.DetectorObject(
+        r = DetectorObject(
             category=detection.category,
             prob=detection.prob,
             x=(detection.x * (w + pad_x * 2) - pad_x) / w,

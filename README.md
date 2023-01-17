@@ -19,20 +19,29 @@ classDiagram
 
 Place imagenet validation images in the imagenet_val folder to improve quantization accuracy. The default is to quantize using only 2 images, which is less accurate.
 
-## Command
+## Quantization command
 
 Quantization can be performed with the following command. 
 
 MobileNetV2
 
 ```
-python3 quantize.py --input_model mobilenetv2_1.0.opt.onnx --output_model mobilenet_quantized.onnx --calibrate_dataset imagenet_val --per_channel True
+python3 quantize.py --input_model ./models/mobilenetv2_1.0.opt.onnx --output_model ./models/mobilenet_quantized.onnx --calibrate_dataset imagenet_val --per_channel True
 ```
 
 YOLOX Tiny
 
 ```
-python3 quantize.py --input_model yolox_tiny.opt.onnx --output_model yolox_tiny_quantized.onnx --calibrate_dataset imagenet_val
+python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized.onnx --calibrate_dataset imagenet_val
+```
+
+## Test
+
+Inference using quantized yolox can be executed with the following command.
+
+```
+cd test
+python3 yolox.py
 ```
 
 ## Output
