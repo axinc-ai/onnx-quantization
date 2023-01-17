@@ -60,8 +60,5 @@ Per-Channel support with QDQ format requires onnx opset version 13 or above.
 
 ## Reference
 
-Official sample
-https://onnxruntime.ai/docs/performance/quantization.html
-
-Official document
-https://github.com/microsoft/onnxruntime-inference-examples/tree/main/quantization/image_classification/cpu
+- [Official sample](https://onnxruntime.ai/docs/performance/quantization.html)
+- [Official document](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/quantization/image_classification/cpu)
