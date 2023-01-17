@@ -66,11 +66,11 @@ def main():
     )
     print("Calibrated and quantized model saved.")
 
-    print("benchmarking fp32 model...")
-    benchmark(input_model_path)
+    #print("benchmarking fp32 model...")
+    #benchmark(input_model_path)
 
-    print("benchmarking int8 model...")
-    benchmark(output_model_path)
+    #print("benchmarking int8 model...")
+    #benchmark(output_model_path)
 
 
 if __name__ == "__main__":
