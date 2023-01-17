@@ -2,6 +2,11 @@
 
 This is a example to quantize onnx. The input is onnx of float. Quantization is done using onnxruntime. The output is onnx of int8.
 
+## Requirements
+
+- onnxruntime 1.13.1
+- onnx 1.13.0
+
 ## Architecture
 
 ```mermaid
@@ -46,8 +51,8 @@ python3 yolox.py
 
 ## Output
 
-- [yolox_tiny_quantized.onnx](yolox_tiny_quantized.onnx)
-- [mobilenev2_quantized.onnx](mobilenev2_quantized.onnx)
+- [yolox_tiny_quantized.onnx](./models/yolox_tiny_quantized.onnx)
+- [mobilenev2_quantized.onnx](./models/mobilenev2_quantized.onnx)
 
 ## Limitation
 
