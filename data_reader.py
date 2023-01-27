@@ -5,7 +5,7 @@ from onnxruntime.quantization import CalibrationDataReader
 from PIL import Image
 
 
-def _preprocess_images(images_folder: str, height: int, width: int, size_limit=0):
+def _preprocess_images(images_folder: str, height: int, width: int, size_limit=0, model_path: str=None):
     """
     Loads a batch of images and preprocess them
     parameter images_folder: path to folder storing images
@@ -23,11 +23,17 @@ def _preprocess_images(images_folder: str, height: int, width: int, size_limit=0
 
     for image_name in batch_filenames:
         image_filepath = images_folder + "/" + image_name
-        pillow_img = Image.new("RGB", (width, height))
-        pillow_img.paste(Image.open(image_filepath).resize((width, height)))
-        input_data = numpy.float32(pillow_img) - numpy.array(
-            [123.68, 116.78, 103.94], dtype=numpy.float32
-        )
+        if "yolox" in model_path:
+            pillow_img = Image.new("RGB", (width, height))
+            pillow_img.paste(Image.open(image_filepath).resize((width, height)))
+            input_data = numpy.float32(pillow_img)
+            input_data = input_data[:,:,::-1] # RGB -> BGR
+        else:
+            pillow_img = Image.new("RGB", (width, height))
+            pillow_img.paste(Image.open(image_filepath).resize((width, height)))
+            input_data = numpy.float32(pillow_img) - numpy.array(
+                [123.68, 116.78, 103.94], dtype=numpy.float32
+            )
         nhwc_data = numpy.expand_dims(input_data, axis=0)
         nchw_data = nhwc_data.transpose(0, 3, 1, 2)  # ONNX Runtime standard
         unconcatenated_batch_data.append(nchw_data)
@@ -47,7 +53,7 @@ class DataReader(CalibrationDataReader):
 
         # Convert image to input data
         self.nhwc_data_list = _preprocess_images(
-            calibration_image_folder, height, width, size_limit=0
+            calibration_image_folder, height, width, size_limit=0, model_path = model_path
         )
         self.input_name = session.get_inputs()[0].name
         self.datasize = len(self.nhwc_data_list)

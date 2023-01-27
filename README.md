@@ -22,7 +22,9 @@ classDiagram
 
 ## Calibration images
 
-Place imagenet validation images in the imagenet_val folder to improve quantization accuracy. The default is to quantize using only 2 images, which is less accurate.
+The default is to quantize using only 2 images, which is less accurate.
+Place imagenet validation images in the imagenet_val folder or coco2017 images folder to improve quantization accuracy.
+(like --calibrate_dataset E:/git/ailia-models-measurement/object_detection/data/coco2017/images)
 
 ## Quantization command
 
