@@ -53,6 +53,17 @@ def main():
         calibration_dataset_path, input_model_path
     )
 
+    if args.per_channel:
+        import onnx
+        model = onnx.load(input_model_path)
+        print("Per-Channel support with QDQ format requires onnx opset version 13 or above. So automatically convert opset version.")
+        if model.opset_import[0].version < 13:
+            op = onnx.OperatorSetIdProto()
+            op.version = 13
+            update_model = onnx.helper.make_model(model.graph, opset_imports=[op])
+            input_model_path = './models/temp.onnx'
+            onnx.save(update_model, './models/temp.onnx')
+
     # Calibrate and quantize model
     # Turn off model optimization during quantization
     quantize_static(

@@ -40,6 +40,7 @@ YOLOX Tiny
 
 ```
 python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized.onnx --calibrate_dataset imagenet_val
+python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized_per_channel.onnx --calibrate_dataset imagenet_val --per_channel Trues
 ```
 
 ## Test
