@@ -39,7 +39,7 @@ python3 quantize.py --input_model ./models/mobilenetv2_1.0.opt.onnx --output_mod
 YOLOX Tiny
 
 ```
-python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized.onnx --calibrate_dataset imagenet_val
+python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized_per_tensor.onnx --calibrate_dataset imagenet_val
 python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized_per_channel.onnx --calibrate_dataset imagenet_val --per_channel Trues
 ```
 
