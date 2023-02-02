@@ -76,8 +76,8 @@ class DataReader(CalibrationDataReader):
         if self.enum_data is None:
             if self.shape_name:
                 shape_data = numpy.array([self.height, self.width], dtype='float32').reshape(1, 2)
-                iou_data = numpy.array([0.5], dtype='float32').reshape(1)
-                threshold_data = numpy.array([0.5], dtype='float32').reshape(1)
+                iou_data = numpy.array([numpy.random.rand()], dtype='float32').reshape(1)
+                threshold_data = numpy.array([numpy.random.rand()], dtype='float32').reshape(1)
                 self.enum_data = iter(
                     [{self.input_name: nhwc_data, self.shape_name: shape_data, self.iou_name: iou_data, self.threshold_name: threshold_data} for nhwc_data in self.nhwc_data_list]
                 )
