@@ -60,8 +60,10 @@ python3 yolox.py
 
 ## Output
 
-- [yolox_tiny_quantized.onnx](./models/yolox_tiny_quantized.onnx)
 - [mobilenev2_quantized.onnx](./models/mobilenev2_quantized.onnx)
+- [yolov3-tiny_quantized_per_tensor.onnx](./models/yolov3-tiny_quantized_per_tensor.onnx)
+- [yolox_tiny_quantized_per_channel.onnx](./models/yolox_tiny_quantized_per_channel.onnx)
+- [yolox_tiny_quantized_per_tensor.onnx](./models/yolox_tiny_quantized_per_tensor.onnx)
 
 ## Limitation
 
