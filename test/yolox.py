@@ -89,8 +89,7 @@ parser.add_argument(
 args = update_parser(parser)
 
 MODEL_NAME = args.model_name
-WEIGHT_PATH = MODEL_NAME + ".opt.onnx"
-MODEL_PATH = MODEL_NAME + ".opt.onnx.prototxt"
+MODEL_PATH = "../models/yolox_tiny_quantized_per_tensor.onnx"
 
 HEIGHT = MODEL_PARAMS[MODEL_NAME]['input_shape'][0]
 WIDTH = MODEL_PARAMS[MODEL_NAME]['input_shape'][1]
@@ -186,7 +185,7 @@ def recognize_from_video(detector):
     logger.info('Script finished successfully.')
 
 def main():
-    detector = onnxruntime.InferenceSession("../models/yolox_tiny_quantized.onnx")
+    detector = onnxruntime.InferenceSession(MODEL_PATH)
 
     if args.video is not None:
         # video mode

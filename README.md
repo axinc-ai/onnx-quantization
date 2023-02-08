@@ -22,22 +22,31 @@ classDiagram
 
 ## Calibration images
 
-Place imagenet validation images in the imagenet_val folder to improve quantization accuracy. The default is to quantize using only 2 images, which is less accurate.
+The default is to quantize using only 2 images, which is less accurate.
+Place imagenet validation images in the imagenet_val folder or coco2017 images folder to improve quantization accuracy.
+(like --calibrate_dataset E:/git/ailia-models-measurement/object_detection/data/coco2017/images)
 
 ## Quantization command
 
 Quantization can be performed with the following command. 
 
-MobileNetV2
+MobileNetV2 (1 inputs model)
 
 ```
 python3 quantize.py --input_model ./models/mobilenetv2_1.0.opt.onnx --output_model ./models/mobilenet_quantized.onnx --calibrate_dataset imagenet_val --per_channel True
 ```
 
-YOLOX Tiny
+YOLOv3 Tiny (4 inputs model)
 
 ```
-python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized.onnx --calibrate_dataset imagenet_val
+python3 quantize.py --input_model ./models/yolov3-tiny.opt.onnx --output_model ./models/yolov3-tiny_quantized_per_tensor.onnx --calibrate_dataset imagenet_val
+```
+
+YOLOX Tiny (1 inputs model)
+
+```
+python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized_per_tensor.onnx --calibrate_dataset imagenet_val
+python3 quantize.py --input_model ./models/yolox_tiny.opt.onnx --output_model ./models/yolox_tiny_quantized_per_channel.onnx --calibrate_dataset imagenet_val --per_channel Trues
 ```
 
 ## Test
